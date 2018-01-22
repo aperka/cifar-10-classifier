@@ -23,41 +23,41 @@ from six.moves import cPickle
 
 hog_cases = {
         1: {"orientations": 9,
-            "pixels_per_cell": [16, 16],
-            "cells_per_block": [2, 2],
-            "block_norm": 'L1',
+            "pixels_per_cell": (16, 16),
+            "cells_per_block": (2, 2),
+            "block_norm": "L1",
             "visualize": True,
             "normalize": True
             },
 
         2: {"orientations": 9,
-            "pixels_per_cell": [16, 16],
-            "cells_per_block": [2, 2],
-            "block_norm": 'L2-Hys',
+            "pixels_per_cell": (16, 16),
+            "cells_per_block": (2, 2),
+            "block_norm": "L2-Hys",
             "visualize": True,
             "normalize": True
             },
 
         3: {"orientations": 9,
-            "pixels_per_cell": [8, 8],
-            "cells_per_block": [2, 2],
-            "block_norm": 'L2-Hys',
+            "pixels_per_cell": (8, 8),
+            "cells_per_block": (2, 2),
+            "block_norm": "L2-Hys",
             "visualize": True,
             "normalize": True
             },
 
         4: {"orientations": 9,
-            "pixels_per_cell": [16, 16],
-            "cells_per_block": [1, 1],
-            "block_norm": 'L2-Hys',
+            "pixels_per_cell": (16, 16),
+            "cells_per_block": (1, 1),
+            "block_norm": "L2-Hys",
             "visualize": True,
             "normalize": True
             },
 
         5: {"orientations": 9,
-            "pixels_per_cell": [16, 16],
-            "cells_per_block": [2, 2],
-            "block_norm": 'L2-Hys',
+            "pixels_per_cell": (16, 16),
+            "cells_per_block": (2, 2),
+            "block_norm": "L2-Hys",
             "visualize": True,
             "normalize": True
             }
@@ -89,60 +89,25 @@ def getData(filePath):
             TestData = zip(test, labels, fileNames)
     return TrainData, TestData
 
-
-def getFeat(TrainData, TestData, ):
-
-    if not os.path.exists('./data/features/test/'):
-        os.makedirs('./data/features/test/')
-    if not os.path.exists('./data/features/train/'):
-        os.makedirs('./data/features/train/')
-
-    fds = []
-    for data in TestData:
-        image = np.reshape(data[0].T, (32, 32, 3))
-        #matplotlib.pyplot.imshow(image)
-        gray = rgb2gray(image)/255.0
-        #matplotlib.pyplot.imshow(gray)
-        fd, hog_image = hog(gray, 16, (4,4), (1,1), 'L2-Hys', visualize, normalize)
-        hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10))
-        matplotlib.pyplot.imshow(hog_image, cmap=matplotlib.pyplot.cm.gray)
-        fd = np.concatenate((fd, data[1]))
-        filename = list(data[2])
-        fd_name = filename[0].split('.')[0]+'.feat'
-        fds.append(fd)
-
-    fd_path = os.path.join('./data/features/test/', fd_name)
-    joblib.dump(fds, fd_path)
-    print("Test features are extracted and saved.")
-
-    for data in TrainData:
-        image = np.reshape(data[0].T, (32, 32, 3))
-        gray = rgb2gray(image)/255.0
-        fd, hog_image = hog(gray, 8, (4, 4), (1, 1), 'L2-Hys', visualize, normalize)
-        fd = np.concatenate((fd, data[1]))
-        filename = list(data[2])
-        fd_name = filename[0].split('.')[0]+'.feat'
-
-        fd_path = os.path.join('./data/features/train/', fd_name)
-        joblib.dump(fd, fd_path)
-    print("Train features are extracted and saved.")
-
 def rgb2gray(im):
     gray = im[:, :, 0]*0.2989+im[:, :, 1]*0.5870+im[:, :, 2]*0.1140
     return gray
 
 def save_features(file_path, dataset, hog_properties):
+    print(hog_properties)
     fds = []
     for data in dataset:
         image = np.reshape(data[0].T, (32, 32, 3))
         #matplotlib.pyplot.imshow(image)
         gray = rgb2gray(image)/255.0
         #matplotlib.pyplot.imshow(gray)
-        fd, hog_image = hog(gray, 16, (4,4), (1,1), 'L2-Hys', visualize, normalize)
-        hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10))
-        matplotlib.pyplot.imshow(hog_image, cmap=matplotlib.pyplot.cm.gray)
+        fd, hog_image = hog(gray, hog_properties["orientations"], hog_properties["pixels_per_cell"],
+                            hog_properties["cells_per_block"], (hog_properties["block_norm"]),
+                            hog_properties["visualize"], hog_properties["normalize"])
+
+        #hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10))
+        #matplotlib.pyplot.imshow(hog_image, cmap=matplotlib.pyplot.cm.gray)
         fd = np.concatenate((fd, data[1]))
-        filename = list(data[2])
         fds.append(fd)
     print(file_path)
     joblib.dump(fds, file_path)

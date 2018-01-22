@@ -40,6 +40,18 @@ def classify(train_features_file, test_features_file, classifier_case_path):
         joblib.dump(clf, classifier_case_path)
     else:
         clf = joblib.load(classifier_case_path)
+    num = 0
+    total = 0
+    print(joblib.load(test_features_file))
+    for test_image in joblib.load(test_features_file):
+        image_test_feat = test_image[:-1].reshape((1, -1))
+        label = test_image[-1]
+        result = clf.predict(image_test_feat)
+        total += 1
+        if int(result) == int(label[-1]):
+            num += 1
+    rate = float(num)/total
+    print(classifier_case_path + ' acc: {}%'.format(rate))
 
 
 
