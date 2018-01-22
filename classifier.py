@@ -18,6 +18,12 @@ classifier_cases = {
     2 : {"type": 'poly',
          "path": os.path.join('data', 'models', 'case2'),
          "degree": 3},
+    3: {"type": 'poly',
+        "path": os.path.join('data', 'models', 'case3'),
+        "degree": 2},
+    4: {"type": 'rbf',
+        "path": os.path.join('data', 'models', 'case4'),
+        "????": '????'},
 }
 
 def classify(train_features_file, test_features_file, classifier_case_path, classifier_case):
@@ -26,6 +32,7 @@ def classify(train_features_file, test_features_file, classifier_case_path, clas
     for img in joblib.load(train_features_file):
         train_fds.append(img[:-1])
         train_labels.append(img[-1])
+    print(len(img))
 
 
     # If feature directories don't exist, create them
@@ -65,8 +72,9 @@ def classify(train_features_file, test_features_file, classifier_case_path, clas
 if __name__ == "__main__":
     from threading import Thread
 
-    for classifier_case in [2]:
+    for classifier_case in [1, 2]:
         for hog_case in [1,2,3,4,5,6]:
+            train_path = os.path.join("data","{}train.features".format(hog_case))
             train_path = os.path.join("data","{}train.features".format(hog_case))
             test_path = os.path.join("data","{}test.features".format(hog_case))
             class_path = classifier_cases[classifier_case]['path'] + "_{}".format(hog_case)
