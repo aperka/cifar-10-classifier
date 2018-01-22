@@ -24,31 +24,29 @@ def classify(train_features_file, test_features_file, classifier_case_path):
         train_fds.append(img[:-1])
         train_labels.append(img[-1])
 
-    test_fds = []
-    test_labels = []
-    for img in joblib.load(test_features_file):
-        test_fds.append(img[:-1])
-        test_labels.append(img[-1])
 
     # If feature directories don't exist, create them
     if not os.path.exists(classifier_case_path):
         if not os.path.exists(os.path.split(classifier_case_path)[0]):
             os.makedirs(os.path.split(classifier_case_path)[0])
         clf = LinearSVC()
+
         print("Training a Linear SVM Classifier.")
         clf.fit(train_fds, train_labels)
         joblib.dump(clf, classifier_case_path)
     else:
         clf = joblib.load(classifier_case_path)
+
     num = 0
     total = 0
-    print(joblib.load(test_features_file))
-    for test_image in joblib.load(test_features_file):
-        image_test_feat = test_image[:-1].reshape((1, -1))
-        label = test_image[-1]
-        result = clf.predict(image_test_feat)
+
+    for img in joblib.load(test_features_file):
+        timage_test_feat = img[:-1]
+        image_test_label = img[-1]
+
+        result = clf.predict(timage_test_feat.reshape(1, -1))
         total += 1
-        if int(result) == int(label[-1]):
+        if int(result) == int(image_test_label):
             num += 1
     rate = float(num)/total
     print(classifier_case_path + ' acc: {}%'.format(rate))
@@ -60,7 +58,7 @@ if __name__ == "__main__":
     from threading import Thread
 
     for classifier_case in [1]:
-        for hog_case in [1,2,3,4,5]:
+        for hog_case in [1,2,3,4,5,6]:
             train_path = os.path.join("data","{}train.features".format(hog_case))
             test_path = os.path.join("data","{}test.features".format(hog_case))
             class_path = classifier_cases[classifier_case]['path'] + "_{}".format(hog_case)
