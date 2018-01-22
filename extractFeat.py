@@ -12,12 +12,7 @@ from sklearn.externals import joblib
 # To read image file and save image feature descriptions
 import os
 import time
-import glob
-import matplotlib
-from skimage import data, exposure
 
-from config import *
-import matplotlib.pyplot as plt
 
 from six.moves import cPickle
 
@@ -67,7 +62,22 @@ hog_cases = {
             "block_norm": "L2-Hys",
             "visualize": True,
             "normalize": None
-            }
+            },
+
+        7: {"orientations": 9,
+            "pixels_per_cell": (8, 8),
+            "cells_per_block": (1, 1),
+            "block_norm": "L2-Hys",
+            "visualize": True,
+            "normalize": True
+            },
+        8: {"orientations": 9,
+            "pixels_per_cell": (8, 8),
+            "cells_per_block": (4, 4),
+            "block_norm": "L2-Hys",
+            "visualize": True,
+            "normalize": True
+            },
         }
 
 def unpickle(file):
@@ -125,7 +135,7 @@ if __name__ == '__main__':
     t0 = time.time()
     filePath = './cifar-10-batches-py'
     TrainData, TestData = getData(filePath)
-    for hog_case in [1,2,3,4,5]:
+    for hog_case in [7, 8]:#[1,2,3,4,5,6]:
         print(hog_case)
         save_features(os.path.join('data', str(hog_case)+'train.features'), TrainData, hog_cases[hog_case])
         save_features(os.path.join('data', str(hog_case)+'test.features'), TestData, hog_cases[hog_case])
