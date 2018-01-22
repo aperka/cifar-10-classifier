@@ -60,6 +60,13 @@ hog_cases = {
             "block_norm": "L2-Hys",
             "visualize": True,
             "normalize": True
+            },
+        6: {"orientations": 9,
+            "pixels_per_cell": (16, 16),
+            "cells_per_block": (2, 2),
+            "block_norm": "L2-Hys",
+            "visualize": True,
+            "normalize": None
             }
         }
 
@@ -71,6 +78,7 @@ def unpickle(file):
 
 def getData(filePath):
     TrainData = []
+    TestData = []
     for childDir in os.listdir(filePath):
         if childDir != 'test_batch':
             f = os.path.join(filePath, childDir)
@@ -86,7 +94,7 @@ def getData(filePath):
             test = np.reshape(data['data'], (10000, 3, 32 * 32))
             labels = np.reshape(data['labels'], (10000, 1))
             fileNames = np.reshape(data['filenames'], (10000, 1))
-            TestData = zip(test, labels, fileNames)
+            TestData.extend(zip(test, labels, fileNames))
     return TrainData, TestData
 
 def rgb2gray(im):
@@ -109,6 +117,7 @@ def save_features(file_path, dataset, hog_properties):
         #matplotlib.pyplot.imshow(hog_image, cmap=matplotlib.pyplot.cm.gray)
         fd = np.concatenate((fd, data[1]))
         fds.append(fd)
+    print(len(dataset), len(fds), len(fd))
     print(file_path)
     joblib.dump(fds, file_path)
 
