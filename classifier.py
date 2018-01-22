@@ -14,10 +14,13 @@ from config import *
 
 classifier_cases = {
     1 : {"type": 'linear',
-         "path": os.path.join('data', 'models', 'case1')}
+         "path": os.path.join('data', 'models', 'case1')},
+    2 : {"type": 'poly',
+         "path": os.path.join('data', 'models', 'case2'),
+         "degree": 3},
 }
 
-def classify(train_features_file, test_features_file, classifier_case_path):
+def classify(train_features_file, test_features_file, classifier_case_path, classifier_case):
     train_fds = []
     train_labels = []
     for img in joblib.load(train_features_file):
@@ -29,9 +32,14 @@ def classify(train_features_file, test_features_file, classifier_case_path):
     if not os.path.exists(classifier_case_path):
         if not os.path.exists(os.path.split(classifier_case_path)[0]):
             os.makedirs(os.path.split(classifier_case_path)[0])
-        clf = LinearSVC()
 
-        print("Training a Linear SVM Classifier.")
+        if classifier_case['type'] == 'linear':
+            clf = LinearSVC()
+
+        if classifier_case['type'] == 'poly':
+            clf = SVC(kernel='poly', degree=classifier_case["degree"])
+
+        print("Training SVM Classifier.")
         clf.fit(train_fds, train_labels)
         joblib.dump(clf, classifier_case_path)
     else:
@@ -57,14 +65,15 @@ def classify(train_features_file, test_features_file, classifier_case_path):
 if __name__ == "__main__":
     from threading import Thread
 
-    for classifier_case in [1]:
+    for classifier_case in [2]:
         for hog_case in [1,2,3,4,5,6]:
             train_path = os.path.join("data","{}train.features".format(hog_case))
             test_path = os.path.join("data","{}test.features".format(hog_case))
             class_path = classifier_cases[classifier_case]['path'] + "_{}".format(hog_case)
             Thread(target=classify, kwargs=dict(train_features_file=train_path,
                                                 test_features_file=test_path,
-                                                classifier_case_path=class_path
+                                                classifier_case_path=class_path,
+                                                classifier_case=classifier_cases[classifier_case]
                                                 )).start()
 
 
